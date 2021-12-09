@@ -1,33 +1,41 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.135.0';
+import { createBall, createGround } from './elements.js';
+
+const windowInnerHeight = window.innerHeight;
+const windowInnerWidth = window.innerWidth;
 
 const scene = new THREE.Scene();
 
-const ballGeometry = new THREE.SphereGeometry(5,32,32);
-const ballTexture = new THREE.TextureLoader().load('stone-texture.jpg');
-const ballMaterial = new THREE.MeshBasicMaterial({ map: ballTexture });
-const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-
+const ball = createBall();
 scene.add(ball);
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(
+  75, 
+  windowInnerWidth / windowInnerHeight, 
+  0.1, 
+  1000
+);
+camera.position.setZ(25);
+camera.position.setY(30)
+camera.lookAt(0,0,0)
 
 const renderer = new THREE.WebGL1Renderer({
   canvas: document.querySelector('#playground')
 });
-
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-camera.position.setZ(25);
-camera.position.setY(20)
-camera.lookAt(0,0,0)
+renderer.setSize(windowInnerWidth, windowInnerHeight);
 
-const groundGeometry = new THREE.PlaneGeometry( window.innerWidth, window.innerHeight );
-const groundTexture = new THREE.TextureLoader().load('stone-texture.jpg');
-const groundMaterial = new THREE.MeshBasicMaterial( {color: 0x666666  , map: groundTexture });
-const ground = new THREE.Mesh( groundGeometry, groundMaterial );
+
+const ground = createGround();
 ground.rotateX(- Math.PI / 2)
 ground.position.setY(-20)
 scene.add(ground);
+
+const handleBallKinematics = ({translationAxis, rotationAxis, movementUnit, rotationUnit, multiplyingFactor = 1}) => {
+  ball.position[translationAxis] += multiplyingFactor * movementUnit;
+  ball.rotation[rotationAxis] += multiplyingFactor * rotationUnit;
+  scene.add(ball)
+}
 
 document.addEventListener('keydown', (e) => {
   const defaultMovement = 5;
